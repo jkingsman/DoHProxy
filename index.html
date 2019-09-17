@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=.85">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <title>DNSTumbler.club | DoH Proxy & Anonymizer</title>
+    <title>DoHProxy.com | DoH Proxy & Anonymizer</title>
     <style type="text/css">body{margin:40px auto;max-width:700px;line-height:1.6;font-size:18px;color:#444;padding:0 10px;background-color:#eee}h1,h2,h3{line-height:1.2;color:black;margin-bottom:0}pre{font-size:smaller;background-color:#ccc;padding:5px;overflow:scroll}code{font-size:smaller}</style>
     <meta name="Description" content="A DNS-over-HTTPS anonymous proxy and traffic tumbler -- keep your DNS queries obfuscated!">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,8 +13,8 @@
 
 <body>
     <header>
-        <h1>DNSTumbler.club</h1>
-        <p>This site proxies your DNS-over-HTTPS (DoH) lookups. Use it by setting your DoH client to use <code>https://dnstumbler.com/dns-query</code>.</p>
+        <h1>DoHProxy.com</h1>
+        <p>This site proxies your DNS-over-HTTPS (DoH) lookups. Use it by setting your DoH client to use <code>https://DoHProxy.com/dns-query</code>.</p>
         <p>DNS traffic is currently resolving via:</p>
         <ul>
             <li>https://dns.google</li>
@@ -79,13 +79,13 @@ sudo certbot certonly --nginx</code></pre>
     <p>This will take a while (the lowest grade lightsail instance takes nearly an hour); open a second SSH session and let's keep going.</p>
     <h3>Static Site</h3>
     <p>
-        Optionally, create a folder to serve a static page so that your proxy has a web presence (just like this one). Feel free to use the content and styling of this page as a reference (<a href="https://github.com/jkingsman/DNSTumbler">see git repo</a>); it's generally drawn from <a href="http://bettermotherfuckingwebsite.com/">Better Motherfucking Website</a> and is a single page with just a few lines of styling (this page is licensed under <a href="http://www.wtfpl.net/faq/">WTFPL</a>).</p>
+        Optionally, create a folder to serve a static page so that your proxy has a web presence (just like this one). Feel free to use the content and styling of this page as a reference (<a href="https://github.com/jkingsman/DoHProxy">see git repo</a>); it's generally drawn from <a href="http://bettermotherfuckingwebsite.com/">Better Motherfucking Website</a> and is a single page with just a few lines of styling (this page is licensed under <a href="http://www.wtfpl.net/faq/">WTFPL</a>).</p>
     <pre>
 <code class="bash">sudo mkdir /srv/proxy_static
 sudo vim /srv/proxy_static/index.html # set the page contents
 sudo chmod 644 /srv/proxy_static/index.html</code></pre>
     <h3>Base Server Configuration</h3>
-    <p>We'll replace the default configuration nginx ships with (<code>/etc/nginx/sites-enabled/default</code>). Open that file, empty it, and dump the following config in. There are inline comments, and we'll break it down in more detail below (find a raw copy in <a href="https://raw.githubusercontent.com/jkingsman/DNSTumbler/master/default.conf">this site's git repo</a>).</p>
+    <p>We'll replace the default configuration nginx ships with (<code>/etc/nginx/sites-enabled/default</code>). Open that file, empty it, and dump the following config in. There are inline comments, and we'll break it down in more detail below (find a raw copy in <a href="https://raw.githubusercontent.com/jkingsman/DoHProxy/master/default.conf">this site's git repo</a>).</p>
 <pre><code>##
 # Individual DoH server entries, one server per resolver.
 # These establish proxy ports that the upstream resolvers
@@ -232,7 +232,7 @@ sudo service nginx restart
     Curl maintains a <a href="https://github.com/curl/curl/wiki/DNS-over-HTTPS#publicly-available-servers">list of publicly available DoH resolvers; that's a great place to start populating your upstream resolvers</a>. Note that not all resolvers on this are still live or compatible with this setup; make sure to test before you throw them in your config.
 </p>
 <h2>Next Steps</h2>
-I'm currently looking into options for running this as a standalone script free of Nginx, or possibly via beefier AWS tools. This documentation and site contents are open-source on <a href="https://github.com/jkingsman/DNSTumbler">GitHub</a>; feel free to offer improvements or bring up issues there.
+I'm currently looking into options for running this as a standalone script free of Nginx, or possibly via beefier AWS tools. This documentation and site contents are open-source on <a href="https://github.com/jkingsman/DoHProxy">GitHub</a>; feel free to offer improvements or bring up issues there.
 <p>Here's to a free and open internet!</p>
 <hr />
 This site is run by <a href="https://jacksbrain.com/">Jack Kingsman</a>, a software engineer in San Francisco.
