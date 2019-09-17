@@ -79,13 +79,13 @@ sudo certbot certonly --nginx</code></pre>
     <p>This will take a while (the lowest grade lightsail instance takes nearly an hour); open a second SSH session and let's keep going.</p>
     <h3>Static Site</h3>
     <p>
-        Optionally, create a folder to serve a static page so that your proxy has a web presence (just like this one). Feel free to use the content and styling of this page as a reference; it's generally drawn from <a href="http://bettermotherfuckingwebsite.com/">Better Motherfucking Website</a> and is a single page with just a few lines of styling (this page is licensed under <a href="http://www.wtfpl.net/faq/">WTFPL</a>).</p>
+        Optionally, create a folder to serve a static page so that your proxy has a web presence (just like this one). Feel free to use the content and styling of this page as a reference (<a href="https://github.com/jkingsman/DNSTumbler">see git repo</a>); it's generally drawn from <a href="http://bettermotherfuckingwebsite.com/">Better Motherfucking Website</a> and is a single page with just a few lines of styling (this page is licensed under <a href="http://www.wtfpl.net/faq/">WTFPL</a>).</p>
     <pre>
 <code class="bash">sudo mkdir /srv/proxy_static
 sudo vim /srv/proxy_static/index.html # set the page contents
 sudo chmod 644 /srv/proxy_static/index.html</code></pre>
     <h3>Base Server Configuration</h3>
-    <p>We'll replace the default configuration nginx ships with (<code>/etc/nginx/sites-enabled/default</code>). Open that file, empty it, and dump the following config in. There are inline comments, and we'll break it down in more detail below (find a raw copy at CHANGEME in <a href="https://github.com/jkingsman/DNSTUmbler/foo">this site's git repo</a>).</p>
+    <p>We'll replace the default configuration nginx ships with (<code>/etc/nginx/sites-enabled/default</code>). Open that file, empty it, and dump the following config in. There are inline comments, and we'll break it down in more detail below (find a raw copy in <a href="https://raw.githubusercontent.com/jkingsman/DNSTumbler/master/default.conf">this site's git repo</a>).</p>
 <pre><code>##
 # Individual DoH server entries, one server per resolver.
 # These establish proxy ports that the upstream resolvers
@@ -176,6 +176,14 @@ server {
   }
 
   ##
+  # Secondary ".well-known" endpoint
+  ##
+  location /.well-known/dns-query {
+    rewrite ^/\.well-known/(.*) /$1 break;
+    proxy_pass http://dohproviders;
+  }
+
+  ##
   # Default greeting page for web browsers
   ##
   location / {
@@ -195,14 +203,13 @@ server {
 <p>First, we set up a server for each DoH resolver we're going to route to and set them to listen on a unique port. Essentially, these are proxied portals to those providers. When adding new resolvers, you'll need a new server block for each one. As an added advantage, this allows you to do per-server request rewriting if they don't respond on the semi-standard <code>/dns-query</code>. These port 800x endpoints are not publically accessible; they're purely for our own internal routing. I also added a <code>X-Resolved-By</code> header to indicate what resolver actually responded when debugging. It's completely optional and can be removed.</p>
 <p>The <code>upstream</code> block aggregates these endpoints into a single traffic-ready block. As specified, it will route traffic in a round-robin fashion to each resolver/server in turn. Nginx has <a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html">documentation on the <code>upstream</code> module</a> that allows for all kinds of interesting options such as weighting, connection-count limiting, and other options that may be of interest if you're routing to smaller resolvers or want to shape your traffic at all.</p>
 <p>Finally, we put it all together in our hefty public-facing server block. Make sure you change your <code>ssl_certificate</code> and <code>ssl_certificate_key</code> locations to reflect your key location. The sizable chunk of SSL options are mostly sourced from <a href="https://cipherli.st/">Cipherli.st</a> and are modern best-practices SSL settings (you'll even get an A+ from <a href="https://www.ssllabs.com/ssltest">SSL Labs' test</a>!).</p>
-<p>The actual <code>/dns-query</code> endpoint routes to our upstream provider collection set up above, and we throw in the static page if you have one as well as an HTTP => HTTPS redirect. Make sure you modify the <code>root</code> directive to point to your static files folder if it's not in <code>/srv/proxy_static</code>.</p>
+<p>The actual <code>/dns-query</code> endpoint routes to our upstream provider collection set up above, and we throw in the static page if you have one as well as an HTTP => HTTPS redirect. I also add a <code>.well-known/</code> endpoint to mirror Cloudflare and because <a href="https://tools.ietf.org/html/rfc8615">RFC 8615</a> is cool. Make sure you modify the <code>root</code> directive to point to your static files folder if it's not in <code>/srv/proxy_static</code>.</p>
 <p>You can double check you've made all necessary changes by grepping for <code>changeme</code>; there's a marker each place you will or might need to make modifications before going live.</p>
 <p>Finally, check your configuration and bring the new config up:</p>
 <pre><code class="bash">sudo nginx -t
 sudo service nginx restart
 </code></pre>
-<h2>Testing & Final Words</h2>
-<p>For testing, I'd highly recommend Daniel Stenberg's fantastic <a href="https://github.com/curl/doh">doh</a> tool. It compiles dependency-free out of the box (just clone and <code>make</code>) and provides easy testing (just run <code>./doh www.example.com https://yourdomain.com/dns-query</code>).</p>
+<h2>Adding Servers</h2>
 <p>
     When adding new DNS servers, you'll need to create a server block for it:</p>
     <pre><code class="nginx">server {
@@ -213,8 +220,11 @@ sudo service nginx restart
     add_header X-Resolved-By $upstream_addr always;
   }
 }</code></pre>
-<p>And make sure you update your <code>upstream</code> block with the new address.
+<p>And make sure you update your <code>upstream</code> block with the new address (e.g. <code>server 127.0.0.1:8001;</code>).
 </p>
+<h2>Testing & Final Words</h2>
+<p>For testing, I'd highly recommend Daniel Stenberg's fantastic <a href="https://github.com/curl/doh">doh</a> tool. It compiles dependency-free out of the box (just clone and <code>make</code>) and provides easy testing (just run <code>./doh www.example.com https://yourdomain.com/dns-query</code>).</p>
+
 <p>
     In the spirit of anonymization, I'd suggest disabling access logging in nginx which can be disabled by commenting out this line in <code>/etc/nginx/nginx.conf</code>:</p>
     <pre><code class="nginx">access_log /var/log/nginx/access.log;</code></pre>
@@ -222,7 +232,7 @@ sudo service nginx restart
     Curl maintains a <a href="https://github.com/curl/curl/wiki/DNS-over-HTTPS#publicly-available-servers">list of publicly available DoH resolvers; that's a great place to start populating your upstream resolvers</a>. Note that not all resolvers on this are still live or compatible with this setup; make sure to test before you throw them in your config.
 </p>
 <h2>Next Steps</h2>
-I'm currently working on guides to set this up with a small python-powered server rather than needing to spin up an entire nginx config; after that I'll be trying to figure out the very cheapest way to do this, probably via AWS utilities. This documentation and site contents are open-source on <a href="https://github.com/jkingsman/DNSTumbler">GitHub</a>; feel free to offer improvements or bring up issues there.
+I'm currently looking into options for running this as a standalone script free of Nginx, or possibly via beefier AWS tools. This documentation and site contents are open-source on <a href="https://github.com/jkingsman/DNSTumbler">GitHub</a>; feel free to offer improvements or bring up issues there.
 <p>Here's to a free and open internet!</p>
 <hr />
 This site is run by <a href="https://jacksbrain.com/">Jack Kingsman</a>, a software engineer in San Francisco.
