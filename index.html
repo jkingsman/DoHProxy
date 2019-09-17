@@ -86,7 +86,7 @@ sudo certbot certonly --nginx</code></pre>
 sudo vim /srv/proxy_static/index.html # set the page contents
 sudo chmod 644 /srv/proxy_static/index.html</code></pre>
     <h3>Base Server Configuration</h3>
-    <p>We'll replace the default configuration nginx ships with (<code>/etc/nginx/sites-enabled/default</code>). Open that file, empty it, and dump the following config in. There are inline comments, and we'll break it down in more detail below (find a raw copy at <a href="/default.conf">this site's git repo</a>).</p>
+    <p>We'll replace the default configuration nginx ships with (<code>/etc/nginx/sites-enabled/default</code>). Open that file, empty it, and dump the following config in. There are inline comments, and we'll break it down in more detail below (find a raw copy at <a href="https://raw.githubusercontent.com/jkingsman/DoHProxy/master/default.conf">this site's git repo</a>).</p>
 <pre><code>##
 # Individual DoH server entries, one server per resolver.
 # These establish proxy ports that the upstream resolvers
