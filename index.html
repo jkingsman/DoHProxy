@@ -6,13 +6,13 @@
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <title>DoHProxy.com | DoH Proxy & Anonymizer</title>
-    <style type="text/css">body{margin:40px auto;max-width:700px;line-height:1.6;font-size:18px;color:#444;padding:0 10px;background-color:#eee;font-family: 'Roboto', sans-serif;}h1,h2,h3{line-height:1.2;color:black;margin-bottom:0}pre{font-size:smaller;background-color:#ccc;padding:5px;overflow:scroll}code{font-size:smaller}</style>
+    <style>body{margin:40px auto;max-width:700px;line-height:1.6;font-size:18px;color:#444;padding:0 10px;background-color:#eee;font-family: 'Roboto', sans-serif;}h1,h2,h3{line-height:1.2;color:black;margin-bottom:0}pre{font-size:smaller;background-color:#ccc;padding:5px;overflow:scroll}code{font-size:smaller}</style>
     <meta name="Description" content="A DNS-over-HTTPS anonymous proxy and traffic tumbler -- keep your DNS queries obfuscated!">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
   </head>
   <body>
-    <header role="banner">
+    <header>
       <h1>DoHProxy.com</h1>
       <p>This site proxies your DNS-over-HTTPS (DoH) lookups. Use it by setting your DoH client to use <code>https://DoHProxy.com/dns-query</code>.</p>
       <p>DNS traffic is currently resolving via:</p>
@@ -238,7 +238,7 @@ sudo service nginx restart
     I'm currently looking into options for running this as a standalone script free of Nginx, or possibly via beefier AWS tools. This documentation and site contents are open-source on <a href="https://github.com/jkingsman/DoHProxy">GitHub</a>; feel free to offer improvements or bring up issues there.
     <p>Here's to a free and open internet!</p>
     <hr />
-    <footer role="contentinfo">
+    <footer>
       This site is run by <a href="https://jacksbrain.com/">Jack Kingsman</a>, a software engineer in San Francisco.
     </footer>
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/default.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -246,6 +246,6 @@ sudo service nginx restart
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/default.min.css">
     </noscript>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
-    <script data-no-instant>hljs.initHighlightingOnLoad();</script>
+    <script>hljs.initHighlightingOnLoad();</script>
   </body>
 </html>
