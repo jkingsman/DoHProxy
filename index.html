@@ -224,7 +224,7 @@ sudo service nginx restart
 <p>And make sure you update your <code>upstream</code> block with the new address (e.g. <code>server 127.0.0.1:8001;</code>).
 </p>
 <h2>Testing & Final Words</h2>
-<p>For testing, I'd highly recommend Daniel Stenberg's fantastic <a href="https://github.com/curl/doh">doh</a> tool. It compiles dependency-free out of the box (just clone and <code>make</code>) and provides easy testing (just run <code>./doh www.example.com https://yourdomain.com/dns-query</code>).</p>
+<p>For testing, I'd highly recommend Daniel Stenberg's fantastic <a href="https://github.com/curl/doh">doh</a> tool. It compiles nearly dependency-free out of the box (just clone and <code>make</code>; you may need to <code>sudo apt-get install libcurl4 libcurl4-openssl-dev -y</code>) and provides easy testing (just run <code>./doh www.example.com https://yourdomain.com/dns-query</code>).</p>
 
 <p>
     In the spirit of anonymization, I'd suggest disabling access logging in nginx which can be disabled by commenting out this line in <code>/etc/nginx/nginx.conf</code>:</p>
