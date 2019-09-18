@@ -96,38 +96,42 @@ sudo chmod 644 /srv/proxy_static/index.html</code></pre>
 # can be reached via.
 ##
 server {
-  listen 8001 default_server;
-  server_name _;
+  listen        8001 default_server;
+  server_name   _;
+
   location / {
-    proxy_pass https://dns.google;
-    add_header X-Resolved-By $upstream_addr always;  # optional debugging header
+    proxy_pass  https://dns.google;
+    add_header  X-Resolved-By $upstream_addr always;  # optional debugging header
   }
 }
 
 server {
-  listen 8002 default_server;
-  server_name _;
+  listen 8002   default_server;
+  server_name   _;
+
   location / {
-    proxy_pass https://cloudflare-dns.com;
-    add_header X-Resolved-By $upstream_addr always;  # optional debugging header
+    proxy_pass  https://cloudflare-dns.com;
+    add_header  X-Resolved-By $upstream_addr always;  # optional debugging header
   }
 }
 
 server {
-  listen 8003 default_server;
-  server_name _;
+  listen 8003   default_server;
+  server_name   _;
+
   location / {
-    proxy_pass https://doh.opendns.com;
-    add_header X-Resolved-By $upstream_addr always;  # optional debugging header
+    proxy_pass  https://doh.opendns.com;
+    add_header  X-Resolved-By $upstream_addr always;  # optional debugging header
   }
 }
 
 server {
-  listen 8004 default_server;
-  server_name _;
+  listen 8004   default_server;
+  server_name   _;
+
   location / {
-    proxy_pass https://doh.42l.fr/dns-query;
-    add_header X-Resolved-By $upstream_addr always;  # optional debugging header
+    proxy_pass  https://doh.42l.fr/dns-query;
+    add_header  X-Resolved-By $upstream_addr always;  # optional debugging header
   }
 }
 
@@ -142,66 +146,71 @@ upstream dohproviders {
 }
 
 server {
-  listen [::]:443 ssl http2 ipv6only=on;
-  listen 443 ssl http2;
-  server_name _;
-  # Changeme: if you put your static site root elsewhere, change that here
-  root /srv/proxy_static;
+  listen        [::]:443 ssl http2 ipv6only=on;
+  listen        443 ssl http2;
+  server_name   _;
+  root          /srv/proxy_static;  # Changeme: if you put your static site root elsewhere, change that here
 
   ##
   # SSL Configuration
   # Changme: you'll need to change these to reflect your actual cert and key location
   ##
-  ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+
+  ssl_certificate       /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+  ssl_certificate_key   /etc/letsencrypt/live/yourdomain.com/privkey.pem;
 
   # not all of these are compatible with all nginx versions
   # sourced from https://cipherli.st/
-  ssl_protocols TLSv1.3 TLSv1.2; # Requires nginx >= 1.13.0 else use TLSv1.2
-  ssl_prefer_server_ciphers on;
-  ssl_dhparam /etc/nginx/dhparam.pem;
-  ssl_ciphers EECDH+AESGCM:EDH+AESGCM;
-  ssl_ecdh_curve secp384r1; # Requires nginx >= 1.1.0
-  ssl_session_timeout 10m;
-  ssl_session_cache shared:SSL:10m;
-  ssl_session_tickets off; # Requires nginx >= 1.5.9
-  ssl_stapling on; # Requires nginx >= 1.3.7
-  ssl_stapling_verify on; # Requires nginx => 1.3.7
-  add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
-  add_header X-Frame-Options DENY;
-  add_header X-Content-Type-Options nosniff;
-  add_header X-XSS-Protection "1; mode=block";
+  ssl_protocols                 TLSv1.3 TLSv1.2; # Requires nginx >= 1.13.0 else use TLSv1.2
+  ssl_prefer_server_ciphers     on;
+  ssl_dhparam                   /etc/nginx/dhparam.pem;
+  ssl_ciphers                   EECDH+AESGCM:EDH+AESGCM;
+  ssl_ecdh_curve                secp384r1; # Requires nginx >= 1.1.0
+  ssl_session_timeout           10m;
+  ssl_session_cache             shared:SSL:10m;
+  ssl_session_tickets           off; # Requires nginx >= 1.5.9
+  ssl_stapling                  on; # Requires nginx >= 1.3.7
+  ssl_stapling_verify           on; # Requires nginx => 1.3.7
+
+  add_header                    Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+  add_header                    X-Frame-Options DENY;
+  add_header                    X-Content-Type-Options nosniff;
+  add_header                    X-XSS-Protection "1; mode=block";
 
   ##
   # Actual DNS endpoint
   ##
+
   location /dns-query {
-    proxy_pass http://dohproviders;
+    proxy_pass  http://dohproviders;
   }
 
   ##
   # Secondary ".well-known" endpoint
   ##
+
   location /.well-known/dns-query {
-    rewrite ^/\.well-known/(.*) /$1 break;
-    proxy_pass http://dohproviders;
+    rewrite     ^/\.well-known/(.*) /$1 break;
+    proxy_pass  http://dohproviders;
   }
 
   ##
   # Default greeting page for web browsers
   ##
+
   location / {
-    index index.html;
+    index       index.html;
   }
 }
 
 ##
 # HTTP => HTTPS redirect
 ##
+
 server {
-  listen 80 default_server;
-  server_name _;
-  return 301 https://$host$request_uri;
+  listen        80 default_server;
+  server_name   _;
+  return        301 https://$host$request_uri;
 }</code></pre>
       <p>Whew, that's a big chunk of config. Let's break this down step by step.</p>
       <p>First, we set up a server for each DoH resolver we're going to route to and set them to listen on a unique port. Essentially, these are proxied portals to those providers. When adding new resolvers, you'll need a new server block for each one. As an added advantage, this allows you to do per-server request rewriting if they don't respond on the semi-standard <code>/dns-query</code>. These port 800x endpoints are not publically accessible; they're purely for our own internal routing. I also added a <code>X-Resolved-By</code> header to indicate what resolver actually responded when debugging. It's completely optional and can be removed.</p>
@@ -218,11 +227,11 @@ sudo nginx -s reload  # send a reload signal to nginx
         When adding new DNS servers, you'll need to create a server block for it:
       </p>
       <pre><code class="nginx">server {
-  listen 8001 default_server; # make sure ports are unique
-  server_name _;
+  listen 8001   default_server; # make sure ports are unique
+  server_name   _;
   location / {
-    proxy_pass https://your-resolver-url.com;
-    add_header X-Resolved-By $upstream_addr always;
+    proxy_pass  https://your-resolver-url.com;
+    add_header  X-Resolved-By $upstream_addr always;
   }
 }</code></pre>
       <p>And make sure you update your <code>upstream</code> block with the new address (e.g. <code>server 127.0.0.1:8001;</code>).</p>
