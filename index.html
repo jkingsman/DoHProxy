@@ -219,7 +219,7 @@ server {
       <p>The actual <code>/dns-query</code> endpoint routes to our upstream provider collection set up above; I also add a <code>.well-known/</code> endpoint to mirror Cloudflare and because <a href="https://tools.ietf.org/html/rfc8615">RFC 8615</a> is cool. Then there's the static page if you have one as well as an HTTP => HTTPS redirect. Make sure you modify the <code>root</code> directive to point to your static files folder if it's not in <code>/srv/proxy_static</code>.</p>
       <p>You can double check you've made all necessary changes by grepping for <code>Changeme</code>; there's a marker each place you will or might need to make modifications before going live.</p>
       <p>Finally, check your configuration and bring the new config up:</p>
-      <pre><code class="bash">sudo nginx -t  # run a configuration sanity check
+      <pre><code class="bash">sudo nginx -t         # run a configuration sanity check
 sudo nginx -s reload  # send a reload signal to nginx
 </code></pre>
       <h2>Adding Servers</h2>
