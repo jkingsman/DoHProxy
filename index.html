@@ -69,9 +69,9 @@ sudo add-apt-repository universe
 sudo add-apt-repository ppa:certbot/certbot
 sudo apt-get update
 sudo apt-get install certbot python-certbot-nginx
-sudo certbot certonly --nginx</code></pre>
+sudo certbot certonly --nginx   # actual cert generaion</code></pre>
       <p>
-        Take note of the location of the certificate chain and the key; we'll need those for our nginx setup. Once the certificate is generated, test the renewal with <code>sudo certbot renew --dry-run</code>. If that succeeds, install the renewal as a frequent cronjob with a hook to reload nginx upon renewal (<code>sudo crontab -e -u root</code>):
+        Take note of the location of the certificate chain and the key; we'll need those for our nginx setup. You may also bump into issues if nginx is already listening; if certbot complains just stop the nginx service and bring it back up afterwards (<code>sudo service nginx stop</code). Once the certificate is generated, test the renewal with <code>sudo certbot renew --dry-run</code>. If that succeeds, install the renewal as a frequent cronjob with a hook to reload nginx upon renewal (<code>sudo crontab -e -u root</code>):
       </p>
       <pre><code>52 0,12 * * * certbot renew --renew-hook 'service nginx reload'
 </code></pre>
@@ -100,7 +100,7 @@ server {
   server_name _;
   location / {
     proxy_pass https://dns.google;
-    add_header X-Resolved-By $upstream_addr always;
+    add_header X-Resolved-By $upstream_addr always;  # optional debugging header
   }
 }
 
@@ -109,7 +109,7 @@ server {
   server_name _;
   location / {
     proxy_pass https://cloudflare-dns.com;
-    add_header X-Resolved-By $upstream_addr always;
+    add_header X-Resolved-By $upstream_addr always;  # optional debugging header
   }
 }
 
@@ -118,7 +118,7 @@ server {
   server_name _;
   location / {
     proxy_pass https://doh.opendns.com;
-    add_header X-Resolved-By $upstream_addr always;
+    add_header X-Resolved-By $upstream_addr always;  # optional debugging header
   }
 }
 
@@ -127,7 +127,7 @@ server {
   server_name _;
   location / {
     proxy_pass https://doh.42l.fr/dns-query;
-    add_header X-Resolved-By $upstream_addr always;
+    add_header X-Resolved-By $upstream_addr always;  # optional debugging header
   }
 }
 
@@ -207,11 +207,11 @@ server {
       <p>First, we set up a server for each DoH resolver we're going to route to and set them to listen on a unique port. Essentially, these are proxied portals to those providers. When adding new resolvers, you'll need a new server block for each one. As an added advantage, this allows you to do per-server request rewriting if they don't respond on the semi-standard <code>/dns-query</code>. These port 800x endpoints are not publically accessible; they're purely for our own internal routing. I also added a <code>X-Resolved-By</code> header to indicate what resolver actually responded when debugging. It's completely optional and can be removed.</p>
       <p>The <code>upstream</code> block aggregates these endpoints into a single traffic-ready block. As specified, it will route traffic in a round-robin fashion to each resolver/server in turn. Nginx has <a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html">documentation on the <code>upstream</code> module</a> that allows for all kinds of interesting options such as weighting, connection-count limiting, and other options that may be of interest if you're routing to smaller resolvers or want to shape your traffic at all.</p>
       <p>Finally, we put it all together in our hefty public-facing server block. Make sure you change your <code>ssl_certificate</code> and <code>ssl_certificate_key</code> locations to reflect your key location. The sizable chunk of SSL options are mostly sourced from <a href="https://cipherli.st/">Cipherli.st</a> and are modern best-practices SSL settings (you'll even get an A+ from <a href="https://www.ssllabs.com/ssltest">SSL Labs' test</a>!).</p>
-      <p>The actual <code>/dns-query</code> endpoint routes to our upstream provider collection set up above, and we throw in the static page if you have one as well as an HTTP => HTTPS redirect. I also add a <code>.well-known/</code> endpoint to mirror Cloudflare and because <a href="https://tools.ietf.org/html/rfc8615">RFC 8615</a> is cool. Make sure you modify the <code>root</code> directive to point to your static files folder if it's not in <code>/srv/proxy_static</code>.</p>
-      <p>You can double check you've made all necessary changes by grepping for <code>changeme</code>; there's a marker each place you will or might need to make modifications before going live.</p>
+      <p>The actual <code>/dns-query</code> endpoint routes to our upstream provider collection set up above; I also add a <code>.well-known/</code> endpoint to mirror Cloudflare and because <a href="https://tools.ietf.org/html/rfc8615">RFC 8615</a> is cool. Then there's the static page if you have one as well as an HTTP => HTTPS redirect. Make sure you modify the <code>root</code> directive to point to your static files folder if it's not in <code>/srv/proxy_static</code>.</p>
+      <p>You can double check you've made all necessary changes by grepping for <code>Changeme</code>; there's a marker each place you will or might need to make modifications before going live.</p>
       <p>Finally, check your configuration and bring the new config up:</p>
-      <pre><code class="bash">sudo nginx -t
-sudo service nginx restart
+      <pre><code class="bash">sudo nginx -t  # run a configuration sanity check
+sudo nginx -s reload  # send a reload signal to nginx
 </code></pre>
       <h2>Adding Servers</h2>
       <p>
