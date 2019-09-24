@@ -71,10 +71,9 @@ sudo apt-get update
 sudo apt-get install certbot python-certbot-nginx
 sudo certbot certonly --nginx   # actual cert generation</code></pre>
       <p>
-        Take note of the location of the certificate chain and the key; we'll need those for our nginx setup. You may also bump into issues if nginx is already listening; if certbot complains just stop the nginx service and bring it back up afterwards (<code>sudo service nginx stop</code). Once the certificate is generated, test the renewal with <code>sudo certbot renew --dry-run</code>. If that succeeds, install the renewal as a frequent cronjob with a hook to reload nginx upon renewal (<code>sudo crontab -e -u root</code>):
+        Take note of the location of the certificate chain and the key; we'll need those for our nginx setup. You may also bump into issues if nginx is already listening; if certbot complains just stop the nginx service and bring it back up afterwards (<code>sudo service nginx stop</code). Once the certificate is generated, it's good practice to test the renewal with <code>sudo certbot renew --dry-run</code>.
       </p>
-      <pre><code>52 0,12 * * * certbot renew --renew-hook 'service nginx reload'
-</code></pre>
+        
       <h2>Nginx Configuration</h2>
       <h3>Diffie-Helman Prime Generation</h3>
       <p>We want a bullet-proof SSL setup, so get started by generating <a href="https://security.stackexchange.com/questions/94390/whats-the-purpose-of-dh-parameters">fresh Diffie-Helman primes</a>:</p>
