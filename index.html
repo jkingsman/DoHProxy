@@ -71,7 +71,7 @@ sudo apt-get update
 sudo apt-get install certbot python-certbot-nginx
 sudo certbot certonly --nginx   # actual cert generation</code></pre>
       <p>
-        Take note of the location of the certificate chain and the key; we'll need those for our nginx setup. You may also bump into issues if nginx is already listening; if certbot complains just stop the nginx service and bring it back up afterwards (<code>sudo service nginx stop</code). Once the certificate is generated, it's good practice to test the renewal with <code>sudo certbot renew --dry-run</code>.
+        Take note of the location of the certificate chain and the key; we'll need those for our nginx setup. You may also bump into issues if nginx is already listening; if certbot complains just stop the nginx service and bring it back up afterwards (<code>sudo service nginx stop</code>). Once the certificate is generated, it's good practice to test the renewal with <code>sudo certbot renew --dry-run</code>. (Note that depending on your OS, you may need to manually set up a scheduled task to automate renewal; check the instructions for your setup on the <a href="https://certbot.eff.org/instructions">Certbot instructions page</a>.)
       </p>
         
       <h2>Nginx Configuration</h2>
