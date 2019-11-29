@@ -14,14 +14,15 @@
   <body>
     <header>
       <h1>DoHProxy.com</h1>
-      <p>This site proxies your DNS-over-HTTPS (DoH) lookups. Use it by setting your DoH client to use <code>https://DoHProxy.com/dns-query</code>.</p>
-      <p>DNS traffic is currently resolving via:</p>
+      <p>This site proxies your DNS-over-HTTPS (DoH) lookups. <del>Use it by setting your DoH client to use <code>https://DoHProxy.com/dns-query</code></del>.</p>
+      <p><del>DNS traffic is currently resolving via:</del></p>
       <ul>
-        <li>https://dns.google</li>
-        <li>https://cloudflare-dns.com</li>
-        <li>https://doh.opendns.com</li>
-        <li>https://doh.42l.fr</li>
+        <li><del>https://dns.google</del></li>
+        <li><del>https://cloudflare-dns.com</del></li>
+        <li><del>https://doh.opendns.com</del></li>
+        <li><del>https://doh.42l.fr</del></li>
       </ul>
+      <h3>Due to unexpectedly excessive load, DoHProxy will stop proxying DOH traffic on December 15, 2019. Please, though, use this guide to set up your own proxy!</h3>
     </header>
     <main>
       <h2>What?</h2>
@@ -76,7 +77,7 @@ sudo certbot certonly --nginx   # actual cert generation</code></pre>
       <p>
       Once the certificate is generated, it's good practice to test the renewal with <code>sudo certbot renew --dry-run</code>. Note that depending on your OS, you may need to manually set up a scheduled task to automate renewal; check the instructions for your setup on the <a href="https://certbot.eff.org/instructions">Certbot instructions page</a>.
       </p>
-        
+
       <h2>Nginx Configuration</h2>
       <h3>Diffie-Helman Prime Generation</h3>
       <p>We want a bullet-proof SSL setup, so get started by generating <a href="https://security.stackexchange.com/questions/94390/whats-the-purpose-of-dh-parameters">fresh Diffie-Helman primes</a>:</p>
